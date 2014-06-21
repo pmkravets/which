@@ -22,14 +22,15 @@ checkFile path = do
     fileExist <- doesFileExist path
     if fileExist == True
         then checkExecutable path
-        else do
-            return False
+        else return False
 
 
 which' :: String -> String -> IO String
 which' path s = do
     p <- filterM checkFile $ map (\x-> x ++ "/" ++ s) $ nub $ splitByColon path
-    return $ head p
+    if null p
+        then return ""
+        else return $ head p
 
 which :: String -> IO String
 which s = getEnv "PATH" >>= flip which' s
