@@ -1,10 +1,19 @@
 import Data.String
 import System.Environment (getEnv, getArgs)
 import Control.Monad
+import Control.Monad.Trans.Maybe
 import System.Posix.Files
 import System.Directory
 import Data.List
 import Data.Bool
+import Data.Maybe
+
+findM :: (Monad m) => (a -> m Bool) -> [a] -> m (Maybe a)
+findM f = foldr check (return Nothing)
+    where
+      check c r = do
+          b <- f c
+          if b then return (Just c) else r
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s = case dropWhile p s of
@@ -20,17 +29,15 @@ checkExecutable file = fileAccess file False False True
 checkFile :: FilePath -> IO Bool
 checkFile path = do
     fileExist <- doesFileExist path
-    if fileExist == True
+    if fileExist
         then checkExecutable path
         else return False
 
 
 which' :: String -> String -> IO String
 which' path s = do
-    p <- filterM checkFile $ map (\x-> x ++ "/" ++ s) $ nub $ splitByColon path
-    if null p
-        then return ""
-        else return $ head p
+    p <- findM checkFile $ map (\x-> x ++ "/" ++ s) $ nub $ splitByColon path
+    return $ fromMaybe "Nothing" p
 
 which :: String -> IO String
 which s = getEnv "PATH" >>= flip which' s
