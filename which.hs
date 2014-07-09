@@ -1,7 +1,6 @@
 import Data.String
 import System.Environment (getEnv, getArgs)
 import Control.Monad
-import Control.Monad.Trans.Maybe
 import System.Posix.Files
 import System.Directory
 import Data.List
