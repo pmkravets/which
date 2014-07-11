@@ -35,7 +35,7 @@ checkFile path = do
 
 which' :: String -> String -> IO String
 which' path s = do
-    p <- findM checkFile $ map (\x-> x ++ "/" ++ s) $ nub $ splitByColon path
+    p <- findM checkFile $ map (\x-> x ++ "/" ++ s) $ splitByColon path
     return $ fromMaybe "Nothing" p
 
 which :: String -> IO String
