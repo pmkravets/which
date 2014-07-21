@@ -33,15 +33,16 @@ checkFile path = do
         else return False
 
 
-which' :: String -> String -> IO String
-which' path s = do
-    p <- findM checkFile $ map (\x-> x ++ "/" ++ s) $ splitByColon path
-    return $ fromMaybe "Nothing" p
+which' :: String -> String -> IO (Maybe String)
+which' path s = findM checkFile $ map (\x-> x ++ "/" ++ s) $ splitByColon path
 
-which :: String -> IO String
-which s = getEnv "PATH" >>= flip which' s
+which :: String -> IO (Maybe String)
+which s = do
+   path <- getEnv "PATH"
+   which' path s
 
 main :: IO ()
 main = do
     (program:_) <- getArgs
-    which program >>= putStrLn
+    fullPath <- which program
+    putStrLn $ fromMaybe "No such path" fullPath
